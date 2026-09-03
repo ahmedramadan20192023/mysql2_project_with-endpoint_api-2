@@ -1,6 +1,7 @@
 import express from 'express';
 import mysql from 'mysql2';
-
+import dotenv from 'dotenv';
+dotenv.config({ path: './Config/dev.env' });
 
 const port = process.env.PORT || 4500;
 const app = express();
