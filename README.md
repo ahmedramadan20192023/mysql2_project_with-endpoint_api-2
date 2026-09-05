@@ -93,6 +93,8 @@ Products reference users through a foreign key. Deleting a user also deletes tha
 
 ## API Reference
 
+For the complete endpoint reference, see [API-ENDPOINTS.md](API-ENDPOINTS.md).
+
 ### Users
 
 | Method   | Endpoint                    | Description                                  |
