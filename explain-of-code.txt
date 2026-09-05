@@ -1,0 +1,186 @@
+when you use the query method it do 4 steps 
+1. it parse the quey 
+2. validate syntax && structure
+3. optimize execution plan
+4. execution plan.
+
+-- for every time you run or use query  method >> those for stage every time done
+
+
+
+
+
+
+-- execute method
+
+make those for stage for one time only in the first >> every time the only variable change and the structure is reuse..
+
+
+
+-- forgin key constriants {set null , cascade , restrict , no action } 
+
+set null >> update the value with null 
+cascade >> delete the value in the child table if the value in the parent table deleted
+restrict >> if the value in the parent table deleted it will not delete the value in the child
+not action >> if the value in the parent table deleted it will not delete the value in the child and it will not give any error
+
+
+-- sign up work flow 
+A. Collect the data from client (body ) such as (name , email , password )
+B. validation is the user is exist or not (email) using result.length logic 
+C. if the user is exist send error message to the client , conflict 409 user already exist 
+E. if the user is not exist complete sign up process 
+F. make insert query with the data that you received it from body 
+
+
+-- login work flow 
+A. collect [name , password ] from client (body);
+B. select Query [id , name , email ] where name = ? and password = ? 
+C. check coming result if (result) so exist else not exist 
+
+
+Correct workflow in simple words (delete-user)
+
+1. Receive the user ID → req.params.id
+2. Check whether the user exists in the database
+3. If a database error happens → return 500
+4. If the user doesn't exist → return 404 and stop
+5. If the user exists → execute the DELETE query
+6. If the delete query fails → return 500
+7. If no row was deleted → return an error response
+8. If deletion succeeds → return 200 with success message
+
+Client
+  │
+  │ DELETE /users/delete/5
+  ▼
+Express Route
+  │
+  ▼
+Get id from req.params
+  │
+  │ const { id } = req.params
+  ▼
+Check if user exists
+  │
+  │ SELECT id, name, email
+  │ FROM users
+  │ WHERE id = ?
+  ▼
+Did a Database Error Occur?
+  │
+  ├── YES ──► Return 500
+  │           "syntax err in db query"
+  │
+  └── NO
+       │
+       ▼
+Is result.length === 0?
+       │
+       ├── YES ──► Return 404
+       │           "user with id X not found"
+       │
+       └── NO
+            │
+            ▼
+       Delete the User
+            │
+            │ DELETE FROM users
+            │ WHERE id = ?
+            ▼
+       Did a Database Error Occur?
+            │
+            ├── YES ──► Return 500
+            │
+            └── NO
+                 │
+                 ▼
+          Is affectedRows === 0?
+                 │
+                 ├── YES ──► Return 400
+                 │           "no user deleted"
+                 │
+                 └── NO
+                      │
+                      ▼
+                 Return 200 OK
+                 {
+                   success: true,
+                   message: "Done",
+                   result,
+                   fields
+                 }
+
+
+
+--insert product-workflow 
+
+                 Client
+  │
+  │ POST /product/insert-product
+  │
+  │ Body:
+  │ {
+  │   "name": "Laptop",
+  │   "price": 25000,
+  │   "users_id": 5
+  │ }
+  ▼
+Express Route
+  │
+  ▼
+Extract data from req.body
+  │
+  │ name
+  │ price
+  │ users_id
+  ▼
+Check whether the user exists
+  │
+  │ SELECT id
+  │ FROM users
+  │ WHERE id = ?
+  ▼
+Database Error?
+  │
+  ├── YES ──► 500
+  │           Database Error
+  │
+  └── NO
+       │
+       ▼
+    Does user exist?
+       │
+       ├── NO ──► 404
+       │          "user is not found
+       │           who will insert this product"
+       │
+       └── YES
+            │
+            ▼
+       Insert Product
+            │
+            │ INSERT INTO products
+            │ (name, price, users_id)
+            │ VALUES (?, ?, ?)
+            ▼
+       Database Error?
+            │
+            ├── YES ──► 500
+            │
+            └── NO
+                 │
+                 ▼
+          affectedRows === 0?
+                 │
+                 ├── YES ──► 400
+                 │           "no action happened"
+                 │
+                 └── NO
+                      │
+                      ▼
+                   200 OK
+                   {
+                     success: true,
+                     result
+                   }
